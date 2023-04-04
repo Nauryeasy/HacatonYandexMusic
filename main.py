@@ -660,7 +660,7 @@ def get_youtube_def(event):
     else:
         if 'post_target' not in event['state']['session']:
             response = event["request"]["original_utterance"]
-            name = f"Music Helper Download {random.randint(0, 5000)}"
+            name = f"Music-Helper-Download-{random.randint(0, 5000)}"
 
             kind = 3
             url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?filename={name}&kind={kind}'
