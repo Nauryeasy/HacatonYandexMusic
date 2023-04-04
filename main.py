@@ -42,13 +42,6 @@ def get_info(url: str) -> list:
         'accept-language': 'ru,en;q=0.9,uk;q=0.8',
     }
 
-    # поиск названия песни
-    r = str(requests.get(url).text)
-    first_index = r.find('<title>')
-    second_index = r.find('- YouTube', first_index+7)
-    filename = r[first_index+7 : second_index]
-    print(filename)
-
     # получение ссылки на сайт с всей инфой о видео
     if 'v=' in url:
         video_id = url.split('v=')[1].split('&')[0]
@@ -70,11 +63,19 @@ def get_info(url: str) -> list:
         bytes_of_video += chunk
         print('Download...')
 
-    return [bytes_of_video, filename]
+    return bytes_of_video
 
 
-def send_to_yandex(filename: str, bytes_of_video: bytes, post_target: str) -> bool:
-    files = {'file': (filename, bytes_of_video, 'audio/mpeg')}
+def get_name(url: str) -> list:
+    r = str(requests.get(url).text)
+    first_index = r.find('<title>')
+    second_index = r.find('- YouTube', first_index+7)
+    filename = r[first_index+7 : second_index]
+    return filename
+
+
+def send_to_yandex(bytes_of_video: bytes, post_target: str) -> bool:
+    files = {'file': ("<dick>", bytes_of_video, 'audio/mpeg')}
 
     headers = {
         'Accept': '*/*',
@@ -629,46 +630,22 @@ def get_youtube_def(event):
 #                 "branch": "main_menu",
 #             }
 #         }
-    if 'get_youtube' not in event['state']['session']:
+    if "link_youtube" not in event['state']['session']:
         if 'access_token' in event['state']['user']:
-            user_state_update = None
-            if 'kind_download' in event['state']['user']:
-                kind = event['state']['user']['kind_download']
-            else:
-                yandex_music_api = YandexMusicApi(event['state']['user']['access_token'])
-                yandex_music_api.client.users_playlists_create('download')
-                kind = yandex_music_api.client.users_playlists_list()[0]['kind']
-            url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?kind={kind}'
             return {
-                "text": f"""
-Чтобы я смогла перенести музыку, выполните следующее:
-Перейдите по ссылке: {url}
-Затем скопируйте содержимое на открывшейся странице и отправьте мне
-(для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
-                "tts": """
-Для загрузки видео с YouTube воспользуйтесь устройством с экраном
-Чтобы я смогла перенести музыку, выполните следующее:
-Перейдите по ссылке:
-Затем скопируйте содержимое на открывшейся странице и отправьте мне
-(для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
+                "text": "Напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
+                "tts": "Напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
                 "buttons": [
-                    {
-                        'title': 'Ссылка для переноса',
-                        'url': url,
-                        'hide': False
-                    },
                     "Главное меню",
                     "Назад"
                 ],
                 "session_state": {
                     "branch": "get_youtube",
+                    "link_youtube": "",
                     "get_youtube": ""
-                },
-                "user_state_update": {
-                    'kind_download': kind
                 }
-
             }
+
         else:
             return {
                 "text": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
@@ -681,31 +658,52 @@ def get_youtube_def(event):
                 }
             }
     else:
-        if "post_target" not in event['state']['session']:
+        if 'post_target' not in event['state']['session']:
             response = event["request"]["original_utterance"]
-            response = str(response).replace("'", '"')
-            first = response.find('https', response.find('post-target'))
-            out = response[first: response.find('"', first)]
+            name = get_name(response)
+
+            kind = 3
+            url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?filename={name}&kind={kind}'
             return {
-                "text": "Отлично! Теперь напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
-                "tts": "Отлично! Теперь напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
+                "text": f"""
+            Чтобы я смогла перенести музыку, выполните следующее:
+            Перейдите по ссылке: {url}
+            Затем скопируйте содержимое на открывшейся странице и отправьте мне
+            (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
+                "tts": """
+            Для загрузки видео с YouTube воспользуйтесь устройством с экраном
+            Чтобы я смогла перенести музыку, выполните следующее:
+            Перейдите по ссылке:
+            Затем скопируйте содержимое на открывшейся странице и отправьте мне
+            (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
                 "buttons": [
+                    {
+                        'title': 'Ссылка для переноса',
+                        'url': url,
+                        'hide': False
+                    },
                     "Главное меню",
                     "Назад"
                 ],
                 "session_state": {
                     "branch": "get_youtube",
                     "get_youtube": "",
-                    "post_target": out
-                }
+                    "link_youtube": response,
+                    'post_target': ""
+                },
+
             }
         else:
-            url = event["request"]["original_utterance"]
-            post_target = event['state']['session']['post_target']
+            url = event['state']['session']['link_youtube']
+            response = event["request"]["original_utterance"]
+            response = str(response).replace("'", '"')
+            first = response.find('https', response.find('post-target'))
+            out = response[first: response.find('"', first)]
+            post_target = out
 
             def download():
                 res = get_info(url)
-                print(send_to_yandex(res[1], res[0], post_target))
+                print(send_to_yandex(res, post_target))
                 print("AAAAAAAAAAAAAAAAAAAAA?")
 
             th = Thread(target=download)
