@@ -25,7 +25,7 @@ class YandexMusicApi:
             try:
                 genre = self.client.albums(song_list[i]['album_id'])[0]['genre']
             except:
-                genre = 'Не определен'
+                continue
             if genre is None:
                 genre = 'Не определен'
 
