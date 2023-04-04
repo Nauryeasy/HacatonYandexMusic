@@ -1,46 +1,46 @@
-import openai
+# import openai
 import requests
 from bs4 import BeautifulSoup
 import lxml
 
 
 class MusicRecommender:
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.model = "gpt-3.5-turbo"
-        self.messages = [
-                {"role": "system", "content": "You are a music recommendation bot"},
-                {"role": "user", "content": "Give a list of similar songs to the song {song_name} by {band_name}"}
-            ]
+    # def __init__(self, api_key):
+        # self.api_key = api_key
+        # self.model = "gpt-3.5-turbo"
+        # self.messages = [
+        #         {"role": "system", "content": "You are a music recommendation bot"},
+        #         {"role": "user", "content": "Give a list of similar songs to the song {song_name} by {band_name}"}
+        #     ]
 
-    def choose_music(self, song_name, band_name):
-        response = self.correct_response(song_name, band_name)
-        return response
-
-    def get_response_chat_gpt(self, song_name, band_name):
-        openai.api_key = self.api_key
-        messages = self.messages
-        messages[1]['content'] = messages[1]['content'].format(song_name=song_name, band_name=band_name)
-        response = openai.ChatCompletion.create(model=self.model, messages=messages).choices[0].message.content.split('\n')
-        for i in range(len(response)):
-            if response[i] == '':
-                response.pop(i)
-                i -= 1
-
-        return response
-
-    def correct_response(self, song_name, band_name):
-        response = self.get_response_chat_gpt(song_name, band_name)[2:]
-        for i in range(len(response)):
-            if response[i] == '':
-                response.pop(i)
-                i -= 1
-        song_names = list(map(lambda x: x.split('by')[0][x.split('by')[0].index(' '):].replace('"', '').strip(), response))
-        band_names = list(map(lambda x: x.split('by')[1][1:], response))
-        return {
-            'song_names': song_names,
-            'band_names': band_names
-        }
+    # def choose_music(self, song_name, band_name):
+    #     response = self.correct_response(song_name, band_name)
+    #     return response
+    #
+    # def get_response_chat_gpt(self, song_name, band_name):
+    #     openai.api_key = self.api_key
+    #     messages = self.messages
+    #     messages[1]['content'] = messages[1]['content'].format(song_name=song_name, band_name=band_name)
+    #     response = openai.ChatCompletion.create(model=self.model, messages=messages).choices[0].message.content.split('\n')
+    #     for i in range(len(response)):
+    #         if response[i] == '':
+    #             response.pop(i)
+    #             i -= 1
+    #
+    #     return response
+    #
+    # def correct_response(self, song_name, band_name):
+    #     response = self.get_response_chat_gpt(song_name, band_name)[2:]
+    #     for i in range(len(response)):
+    #         if response[i] == '':
+    #             response.pop(i)
+    #             i -= 1
+    #     song_names = list(map(lambda x: x.split('by')[0][x.split('by')[0].index(' '):].replace('"', '').strip(), response))
+    #     band_names = list(map(lambda x: x.split('by')[1][1:], response))
+    #     return {
+    #         'song_names': song_names,
+    #         'band_names': band_names
+    #     }
 
     def find_music(self, song_name, band_name):
         url = 'https://lalapoisk.ru/?artist={band_name}&track={song_name}' \

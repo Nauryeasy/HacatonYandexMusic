@@ -6,7 +6,7 @@ from StartDialog import StartDialog
 from TimeoutDialog import TimeoutDialog
 from MiddlewareDialog import MiddleWareDialog
 from globalStorage import *
-import openai
+# import openai
 from threading import Thread
 import traceback
 import random
