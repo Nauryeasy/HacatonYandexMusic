@@ -18,7 +18,7 @@ import lxml
 import ssl
 
 
-def get_info(url: str) -> list:
+def get_info(url: str) -> bytes:
     headers = {
         'authority': 'downloader.freemake.com',
         'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Yandex";v="22"',
@@ -66,7 +66,7 @@ def get_info(url: str) -> list:
     return bytes_of_video
 
 
-def get_name(url: str) -> list:
+def get_name(url: str) -> str:
     r = str(requests.get(url).text)
     first_index = r.find('<title>')
     second_index = r.find('- YouTube', first_index+7)
@@ -74,7 +74,7 @@ def get_name(url: str) -> list:
     return filename
 
 
-def send_to_yandex(bytes_of_video: bytes, post_target: str) -> bool:
+def send_to_yandex(bytes_of_video: bytes, post_target: str) -> str:
     files = {'file': ("<dick>", bytes_of_video, 'audio/mpeg')}
 
     headers = {
@@ -660,7 +660,7 @@ def get_youtube_def(event):
     else:
         if 'post_target' not in event['state']['session']:
             response = event["request"]["original_utterance"]
-            name = get_name(response)
+            name = f"Music Helper Download {random.randint(0, 5000)}"
 
             kind = 3
             url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?filename={name}&kind={kind}'
