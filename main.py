@@ -1,4 +1,4 @@
-# from flask import Flask, request
+from flask import Flask, request
 from Dialog import Dialog
 from Handler import Handler
 from Response import Responser
@@ -608,120 +608,120 @@ def what_you_can_def(event):
 
 
 def get_youtube_def(event):
-    return {
-            "text":
-                """
-Данная функция по какой-то причине не работает при хостинге на Yandex Cloud\n
-Поэтому разработчики уже приступили к переезду на другой хостинг.\n
-Мы сами с нетерпением ждем, как вы сможете воспользоваться этой функцией!
-                """,
-            "tts": """
-            Данная функция по какой-то причине не работает при хостинге на Yandex Cloud\n
-Поэтому разработчики уже приступили к переезду на другой хостинг.\n
-Мы сами с нетерпением ждем, как вы сможете воспользоваться этой функцией!
-            """,
-            "buttons": [
-                "Главное меню",
-                "Назад"
-            ],
-            "session_state": {
-                "branch": "main_menu",
+#     return {
+#             "text":
+#                 """
+# Данная функция по какой-то причине не работает при хостинге на Yandex Cloud\n
+# Поэтому разработчики уже приступили к переезду на другой хостинг.\n
+# Мы сами с нетерпением ждем, как вы сможете воспользоваться этой функцией!
+#                 """,
+#             "tts": """
+#             Данная функция по какой-то причине не работает при хостинге на Yandex Cloud\n
+# Поэтому разработчики уже приступили к переезду на другой хостинг.\n
+# Мы сами с нетерпением ждем, как вы сможете воспользоваться этой функцией!
+#             """,
+#             "buttons": [
+#                 "Главное меню",
+#                 "Назад"
+#             ],
+#             "session_state": {
+#                 "branch": "main_menu",
+#             }
+#         }
+    if 'get_youtube' not in event['state']['session']:
+        if 'access_token' in event['state']['user']:
+            user_state_update = None
+            if 'kind_download' in event['state']['user']:
+                kind = event['state']['user']['kind_download']
+            else:
+                yandex_music_api = YandexMusicApi(event['state']['user']['access_token'])
+                yandex_music_api.client.users_playlists_create('download')
+                kind = yandex_music_api.client.users_playlists_list()[0]['kind']
+            url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?kind={kind}'
+            return {
+                "text": f"""
+Чтобы я смогла перенести музыку, выполните следующее:
+Перейдите по ссылке: {url}
+Затем скопируйте содержимое на открывшейся странице и отправьте мне
+(для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
+                "tts": """
+Для загрузки видео с YouTube воспользуйтесь устройством с экраном
+Чтобы я смогла перенести музыку, выполните следующее:
+Перейдите по ссылке:
+Затем скопируйте содержимое на открывшейся странице и отправьте мне
+(для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
+                "buttons": [
+                    {
+                        'title': 'Ссылка для переноса',
+                        'url': url,
+                        'hide': False
+                    },
+                    "Главное меню",
+                    "Назад"
+                ],
+                "session_state": {
+                    "branch": "get_youtube",
+                    "get_youtube": ""
+                },
+                "user_state_update": {
+                    'kind_download': kind
+                }
+
             }
-        }
-#     if 'get_youtube' not in event['state']['session']:
-#         if 'access_token' in event['state']['user']:
-#             user_state_update = None
-#             if 'kind_download' in event['state']['user']:
-#                 kind = event['state']['user']['kind_download']
-#             else:
-#                 yandex_music_api = YandexMusicApi(event['state']['user']['access_token'])
-#                 yandex_music_api.client.users_playlists_create('download')
-#                 kind = yandex_music_api.client.users_playlists_list()[0]['kind']
-#             url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?kind={kind}'
-#             return {
-#                 "text": f"""
-# Чтобы я смогла перенести музыку, выполните следующее:
-# Перейдите по ссылке: {url}
-# Затем скопируйте содержимое на открывшейся странице и отправьте мне
-# (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
-#                 "tts": """
-# Для загрузки видео с YouTube воспользуйтесь устройством с экраном
-# Чтобы я смогла перенести музыку, выполните следующее:
-# Перейдите по ссылке:
-# Затем скопируйте содержимое на открывшейся странице и отправьте мне
-# (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
-#                 "buttons": [
-#                     {
-#                         'title': 'Ссылка для переноса',
-#                         'url': url,
-#                         'hide': False
-#                     },
-#                     "Главное меню",
-#                     "Назад"
-#                 ],
-#                 "session_state": {
-#                     "branch": "get_youtube",
-#                     "get_youtube": ""
-#                 },
-#                 "user_state_update": {
-#                     'kind_download': kind
-#                 }
-#
-#             }
-#         else:
-#             return {
-#                 "text": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
-#                 "tts": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
-#                 "buttons": [
-#                     "Главное меню",
-#                 ],
-#                 "session_state": {
-#                     "branch": "main_menu",
-#                 }
-#             }
-#     else:
-#         if "post_target" not in event['state']['session']:
-#             response = event["request"]["original_utterance"]
-#             response = str(response).replace("'", '"')
-#             first = response.find('https', response.find('post-target'))
-#             out = response[first: response.find('"', first)]
-#             return {
-#                 "text": "Отлично! Теперь напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
-#                 "tts": "Отлично! Теперь напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
-#                 "buttons": [
-#                     "Главное меню",
-#                     "Назад"
-#                 ],
-#                 "session_state": {
-#                     "branch": "get_youtube",
-#                     "get_youtube": "",
-#                     "post_target": out
-#                 }
-#             }
-#         else:
-#             url = event["request"]["original_utterance"]
-#             post_target = event['state']['session']['post_target']
-#
-#             def download():
-#                 res = get_info(url)
-#                 print(send_to_yandex(res[1], res[0], post_target))
-#                 print("AAAAAAAAAAAAAAAAAAAAA?")
-#
-#             th = Thread(target=download)
-#             th.start()
-#
-#             return {
-#                 "text": """Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в специально созданном плейлисте.\n
-# Если этого не произошло, то скорее всего произошла ошибка, которую мы не смогли обработать(""",
-#                 "tts": "Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в специально созданном плейлисте. Если этого не произошло, то скорее всего произошла ошибка, которую мы не смогли обработать(",
-#                 "buttons": [
-#                     "Главное меню",
-#                     "Назад"
-#                 ],
-#                 "session_state": {
-#                     "branch": "main_menu",
-#                 }
-#             }
+        else:
+            return {
+                "text": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
+                "tts": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
+                "buttons": [
+                    "Главное меню",
+                ],
+                "session_state": {
+                    "branch": "main_menu",
+                }
+            }
+    else:
+        if "post_target" not in event['state']['session']:
+            response = event["request"]["original_utterance"]
+            response = str(response).replace("'", '"')
+            first = response.find('https', response.find('post-target'))
+            out = response[first: response.find('"', first)]
+            return {
+                "text": "Отлично! Теперь напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
+                "tts": "Отлично! Теперь напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
+                "buttons": [
+                    "Главное меню",
+                    "Назад"
+                ],
+                "session_state": {
+                    "branch": "get_youtube",
+                    "get_youtube": "",
+                    "post_target": out
+                }
+            }
+        else:
+            url = event["request"]["original_utterance"]
+            post_target = event['state']['session']['post_target']
+
+            def download():
+                res = get_info(url)
+                print(send_to_yandex(res[1], res[0], post_target))
+                print("AAAAAAAAAAAAAAAAAAAAA?")
+
+            th = Thread(target=download)
+            th.start()
+
+            return {
+                "text": """Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в специально созданном плейлисте.\n
+Если этого не произошло, то скорее всего произошла ошибка, которую мы не смогли обработать(""",
+                "tts": "Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в специально созданном плейлисте. Если этого не произошло, то скорее всего произошла ошибка, которую мы не смогли обработать(",
+                "buttons": [
+                    "Главное меню",
+                    "Назад"
+                ],
+                "session_state": {
+                    "branch": "main_menu",
+                }
+            }
 
 
 find_music = Dialog([], find_music_def, {"найди", "подбери", "похожие", "треки", "произведения", "композиции", "музыку"})
@@ -784,17 +784,17 @@ def handler(event, context):
     return dialog_handler.choose_dialog(event)
 
 
-# app = Flask(__name__)
-#
-#
-# @app.route('/', methods=['POST'])
-# def hello():
-#     event = request.get_json()
-#     response = handler(event, "123")
-#     print(response)
-#     print(global_storage)
-#     return response
-#
-#
-# if __name__ == "__main__":
-#     app.run()
+app = Flask(__name__)
+
+
+@app.route('/', methods=['POST'])
+def hello():
+    event = request.get_json()
+    response = handler(event, "123")
+    print(response)
+    print(global_storage)
+    return response
+
+
+if __name__ == "__main__":
+    app.run()
