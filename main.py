@@ -721,6 +721,7 @@ help_menu = MiddleWareDialog([connect_with_developers, question_developers], hel
 find_music.set_last_state(main_menu)
 sort_playlist.set_last_state(main_menu)
 get_youtube.set_last_state(main_menu)
+get_youtube.set_last_state(main_menu)
 get_access_token.set_next_states_list([get_access_token])
 get_youtube.set_next_states_list([get_youtube])
 add_song.set_next_states_list([add_song])
