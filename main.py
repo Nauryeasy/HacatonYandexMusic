@@ -74,7 +74,7 @@ def get_name(url: str) -> str:
 
 
 def send_to_yandex(bytes_of_video: bytes, post_target: str) -> str:
-    files = {'file': ("<dick>", bytes_of_video, 'audio/mpeg')}
+    files = {'file': ("<boobs>", bytes_of_video, 'audio/mpeg')}
 
     headers = {
         'Accept': '*/*',
@@ -185,47 +185,59 @@ def find_music_completed_def(event):
 
 
 def authorization_def(event):
-    return {
-            "text":
+    if "access_token" in event['state']['user']:
+        return {
+            "text": "Вы уже авторизированы!",
+            "tts": "Вы уже авторизированы!",
+            "buttons": [
+                "Главное меню"
+            ],
+            "session_state": {
+                "branch": "main_menu"
+            },
+        }
+    else:
+        return {
+                "text":
                 """
 Для использование некоторых функций навыка требуется авторизация
 Для авторизации скачайте расширение для вашего браузера (Ссылки находятся ниже в кнопках)
 После чего авторизируйтесь и нажмите кнопку "скопировать токен"
 Далее напишите "Ввести токен" в навыке и отправьте скопированный токен.
-Для авторизации используется стороннее расширение, так как разработчикам не удалось
+Для авторизации используется стороннее расширение потому, что разработчикам не удалось
 опубликовать свое, так как сейчас запрещено это делать из России. Но разработчики
 Всеми силами ищут способ преодолеть это ограничение. Так же в разработке мобильное приложение для получения данного токена
                 """,
-            "tts": """
+                "tts": """
 Для использования навыка вам следует пройти авторизацию на устройстве с экраном
 Для использование некоторых функций навыка требуется авторизация
 Для авторизации скачайте расширение для вашего браузера (Ссылки находятся ниже в кнопках)
 После чего авторизируйтесь и нажмите кнопку "скопировать токен"
 Далее скажите "Ввести токен" в навыке и отправьте скопированный токен.
-Для авторизации используется стороннее расширение, так как разработчикам не удалось
+Для авторизации используется стороннее расширение потому, что разработчикам не удалось
 опубликовать свое, так как сейчас запрещено это делать из России. Но разработчики
 Всеми силами ищут способ преодолеть это ограничение. Так же в разработке мобильное приложение для получения данного токена
 """,
-            "buttons": [
-                {
-                    'title': 'Расширение для Google Chrome',
-                    'url': 'https://chrome.google.com/webstore/detail/yandex-music-token/lcbjeookjibfhjjopieifgjnhlegmkib',
-                    'hide': False
+                "buttons": [
+                    {
+                        'title': 'Расширение для Google Chrome',
+                        'url': 'https://chrome.google.com/webstore/detail/yandex-music-token/lcbjeookjibfhjjopieifgjnhlegmkib',
+                        'hide': False
+                    },
+                    {
+                        'title': 'Расширение для Mozilla FireFox',
+                        'url': 'https://addons.mozilla.org/en-US/firefox/addon/yandex-music-token/',
+                        'hide': False
+                    },
+                    "Ввести токен"
+                ],
+                "session_state": {
+                    "branch": "authorization"
                 },
-                {
-                    'title': 'Расширение для Mozilla FireFox',
-                    'url': 'https://addons.mozilla.org/en-US/firefox/addon/yandex-music-token/',
-                    'hide': False
+                "user_state_update": {
+                    "access_token": None
                 },
-                "Ввести токен"
-            ],
-            "session_state": {
-                "branch": "authorization"
-            },
-            "user_state_update": {
-                "access_token": None
-            },
-    }
+        }
 
 
 def get_access_token_def(event):
@@ -234,8 +246,8 @@ def get_access_token_def(event):
             yandex_music_api = YandexMusicApi(event["request"]["original_utterance"])
             yandex_music_api.check_token()
             return {
-                "text": "Вы успешно прошли прошли авторизацию!",
-                "tts": "Вы успешно прошли прошли авторизацию!",
+                "text": "Вы успешно прошли авторизацию!",
+                "tts": "Вы успешно прошли авторизацию!",
                 "buttons": [
                     "Главное меню"
                 ],
@@ -312,10 +324,7 @@ def main_menu_def(event):
 
 
 def back_def(event):
-    try:
-        return dialog_handler.dialogs_dict[dialog_handler.get_state(event)].last_state.get_response_info(event)
-    except:
-        return main_menu.get_response_info(event)
+    return main_menu.get_response_info(event)
 
 
 def help_menu_def(event):
@@ -323,39 +332,17 @@ def help_menu_def(event):
         "text": """
 Я могу сделать подборку похожих песен, по предложенной вами и добавить их в раздел "Моя Музыка" приложения яндекс музыка. Для этого скажите: Подбери песни. \n
 Кроме того, в мои умения входит сортировка вашей любимой музыки по жанрам, для этого скажите: Отсортируй плейлист. А так же возможен перенос музыки из YouTube в Яндекс Музыку, для этого скажите: "Скачай с Youtube".\n
-Также вы можете задать вопрос разработчикам навыка или узнать, как связаться с ними.
                 """,
         "tts": """Я могу сделать подборку похожих песен, по предложенной вами и добавить их в раздел "Моя Музыка" приложения яндекс музыка. Для этого скажите: Подбери песни. \n
 Кроме того, в мои умения входит сортировка вашей любимой музыки по жанрам, для этого скажите: Отсортируй плейлист. А так же возможен перенос музыки из YouTube в Яндекс Музыку, для этого скажите: "Скачай с Youtube".
-Также вы можете задать вопрос разработчикам навыка или узнать, как связаться с ними, сказав 'Я хочу задать вопрос или контакты разработчиков соответственно'.""",
+""",
         "buttons": [
-            "Как связаться с разработчиками?",
-            "Задать вопрос",
-            "Что ты умеешь",
-            "Назад"
+            "Подбери песни",
+            "Отсортируй плейлист",
+            "Добавь с YouTube",
         ],
         "session_state": {
-            "branch": "help_menu"
-        }
-    }
-
-
-def connect_with_developers_def(event):
-    text = ['Вот контакты разработчиков:\n', 'Контакты для связи с разработчиками:\n',
-            'Чтобы связаться с разработчиками воспользуйтесь контактами:\n'
-            ]
-    message = random.choice(text)
-    contacts = "Email: koertyf@gmail.com\n" \
-               "Telegram: @Nauryeasy"
-    return {
-        "text": message + contacts,
-        "tts": message + contacts,
-        "buttons": [
-            "Главное меню",
-            "Назад"
-        ],
-        "session_state": {
-            "branch": "connect_developers"
+            "branch": "main_menu"
         }
     }
 
@@ -470,57 +457,6 @@ def add_song_def(event):
                 "music_list": event['state']['session']["music_list"]
             }
         }
-
-
-def question_developers_def(event):
-    if 'question_text' not in event['state']['session']:
-        text = ['Напишите ваш вопрос, чтобы я отправила его разработчикам', 'Задайте вопрос, и я отправлю его разработчикам']
-        message = random.choice(text)
-        return {
-            "text": message,
-            "tts": message,
-            "buttons": [
-                "Главное меню",
-                "Назад"
-            ],
-            "session_state": {
-                "branch": "question",
-                "question": "",
-                "question_text": ""
-            }
-        }
-    elif 'email' not in event['state']['session']:
-        return {
-            "text": "Напишите вашу почту, чтобы получить ответ:",
-            "tts": "Напишите вашу почту, чтобы получить ответ:",
-            "buttons": [
-                "Главное меню",
-                "Назад"
-            ],
-            "session_state": {
-                "branch": "question",
-                "question": "",
-                "email": "",
-                "question_text": event["request"]["original_utterance"]
-            }
-        }
-    else:
-        print(event['state']['session']['question_text'], event["request"]["original_utterance"])
-        text = ['Ваш вопрос успешно отправлен разработчикам!',
-                'Вопрос был успешно доставлен!']
-        message = random.choice(text)
-        return {
-            "text": message,
-            "tts": message,
-            "buttons": [
-                "Главное меню",
-                "Назад"
-            ],
-            "session_state": {
-                "branch": "help_menu",
-            }
-        }
-
 
 
 def exit_menu_def(event):
@@ -639,8 +575,8 @@ def get_youtube_def(event):
             }
     else:
         if 'post_target' not in event['state']['session']:
-            response = event["request"]["original_utterance"]
-            name = f"Music-Helper-Download-{random.randint(0, 5000)}"
+            link = event["request"]["original_utterance"]
+            name = get_name(link).replace(' ', '+')
 
             kind = 3
             url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?filename={name}&kind={kind}'
@@ -668,7 +604,7 @@ def get_youtube_def(event):
                 "session_state": {
                     "branch": "get_youtube",
                     "get_youtube": "",
-                    "link_youtube": response,
+                    "link_youtube": link,
                     'post_target': ""
                 },
 
@@ -707,8 +643,6 @@ add_song = Dialog([], add_song_def, set({}), always=True)
 find_music_completed = TimeoutDialog([add_song], find_music_completed_def, set({}))
 sort_playlist = Dialog([], sort_playlist_def, {"отсортируй", "плейлист", "сортируй", "сортировка", "любимые", "раскидай"})
 get_youtube = Dialog([], get_youtube_def, {"скачай", "ютуб", "youtube", "загрузи"})
-connect_with_developers = Dialog([], connect_with_developers_def, {"связаться", "разработчиками", "создателями", "контакты", "раскидай", "жанрам", "разложи"})
-question_developers = Dialog([], question_developers_def, {"задать", "вопрос", "спросить"})
 get_access_token = Dialog([], get_access_token_def, {"ввести", "токен"})
 authorization = Dialog([get_access_token], authorization_def, {"авторизация", "войти", "авторизуй", "авторизуйся"})
 main_menu = StartDialog([find_music, authorization, sort_playlist, get_youtube], main_menu_def, {"главное", "меню", "страница", "главная"})
@@ -716,7 +650,7 @@ main_menu = StartDialog([find_music, authorization, sort_playlist, get_youtube],
 exit_menu = MiddleWareDialog([], exit_menu_def, {"выход", "выйти", "выйти"})
 back = Dialog([], back_def, {"назад", "вернись", "отмена"})
 what_you_can = MiddleWareDialog([], what_you_can_def, {'ты', 'умеешь', 'можешь'})
-help_menu = MiddleWareDialog([connect_with_developers, question_developers], help_menu_def, {"помощь", "помогите", "хелп", "спасите", "подскажи", "помоги"})
+help_menu = MiddleWareDialog([], help_menu_def, {"помощь", "помогите", "хелп", "спасите", "подскажи", "помоги"})
 
 find_music.set_last_state(main_menu)
 sort_playlist.set_last_state(main_menu)
@@ -727,10 +661,8 @@ get_youtube.set_next_states_list([get_youtube])
 add_song.set_next_states_list([add_song])
 add_song.set_last_state(main_menu)
 find_music.set_next_states_list([find_music, find_music_completed])
-connect_with_developers.set_last_state(help_menu)
-question_developers.set_last_state(help_menu)
 exit_menu.set_next_states_list([exit_menu])
-question_developers.set_next_states_list([question_developers])
+help_menu.set_last_state(main_menu)
 
 dialogs_dict = {
     "main_menu": main_menu,
@@ -739,10 +671,8 @@ dialogs_dict = {
     "sort_playlist": sort_playlist,
     "get_youtube": get_youtube,
     "find_music_completed": find_music_completed,
-    "connect_developers": connect_with_developers,
     "authorization": authorization,
     "get_access_token": get_access_token,
-    "question": question_developers,
     "help_menu": help_menu,
     "what_you_can": what_you_can,
     "exit_menu": exit_menu
