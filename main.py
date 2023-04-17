@@ -103,8 +103,6 @@ def find_music_def(event):
             }
         }
     else:
-        if 'access_token' in event['state']['user']:
-            yandex_music_api = YandexMusicApi(event['state']['user']['access_token'])
         return {
             "text": "Напишите название группы или исполнителя",
             "tts": "Напишите название группы",
@@ -185,21 +183,22 @@ def find_music_completed_def(event):
 
 
 def authorization_def(event):
-    if "access_token" in event['state']['user']:
-        return {
-            "text": "Вы уже авторизированы!",
-            "tts": "Вы уже авторизированы!",
-            "buttons": [
-                "Главное меню"
-            ],
-            "session_state": {
-                "branch": "main_menu"
-            },
-        }
-    else:
-        return {
-                "text":
-                """
+    try:
+        if "access_token" in event['state']['user']:
+            return {
+                "text": "Вы уже авторизированы!",
+                "tts": "Вы уже авторизированы!",
+                "buttons": [
+                    "Главное меню"
+                ],
+                "session_state": {
+                    "branch": "main_menu"
+                },
+            }
+        else:
+            return {
+                    "text":
+                    """
 Для использование некоторых функций навыка требуется авторизация
 Для авторизации скачайте расширение для вашего браузера (Ссылки находятся ниже в кнопках)
 После чего авторизируйтесь и нажмите кнопку "скопировать токен"
@@ -207,8 +206,8 @@ def authorization_def(event):
 Для авторизации используется стороннее расширение потому, что разработчикам не удалось
 опубликовать свое, так как сейчас запрещено это делать из России. Но разработчики
 Всеми силами ищут способ преодолеть это ограничение. Так же в разработке мобильное приложение для получения данного токена
-                """,
-                "tts": """
+                    """,
+                    "tts": """
 Для использования навыка вам следует пройти авторизацию на устройстве с экраном
 Для использование некоторых функций навыка требуется авторизация
 Для авторизации скачайте расширение для вашего браузера (Ссылки находятся ниже в кнопках)
@@ -218,25 +217,37 @@ def authorization_def(event):
 опубликовать свое, так как сейчас запрещено это делать из России. Но разработчики
 Всеми силами ищут способ преодолеть это ограничение. Так же в разработке мобильное приложение для получения данного токена
 """,
-                "buttons": [
-                    {
-                        'title': 'Расширение для Google Chrome',
-                        'url': 'https://chrome.google.com/webstore/detail/yandex-music-token/lcbjeookjibfhjjopieifgjnhlegmkib',
-                        'hide': False
+                    "buttons": [
+                        {
+                            'title': 'Расширение для Google Chrome',
+                            'url': 'https://chrome.google.com/webstore/detail/yandex-music-token/lcbjeookjibfhjjopieifgjnhlegmkib',
+                            'hide': False
+                        },
+                        {
+                            'title': 'Расширение для Mozilla FireFox',
+                            'url': 'https://addons.mozilla.org/en-US/firefox/addon/yandex-music-token/',
+                            'hide': False
+                        },
+                        "Ввести токен"
+                    ],
+                    "session_state": {
+                        "branch": "authorization"
                     },
-                    {
-                        'title': 'Расширение для Mozilla FireFox',
-                        'url': 'https://addons.mozilla.org/en-US/firefox/addon/yandex-music-token/',
-                        'hide': False
+                    "user_state_update": {
+                        "access_token": None
                     },
-                    "Ввести токен"
-                ],
-                "session_state": {
-                    "branch": "authorization"
-                },
-                "user_state_update": {
-                    "access_token": None
-                },
+            }
+
+    except:
+        return {
+            "text": "Для авторизации вам следует войти в аккаун Яндекс ID",
+            "tts": "Для авторизации вам следует войти в аккаун Яндекс ID",
+            "buttons": [
+                "Главное меню"
+            ],
+            "session_state": {
+                "branch": "main_menu"
+            },
         }
 
 
@@ -348,21 +359,34 @@ def help_menu_def(event):
 
 
 def sort_playlist_def(event):
-    if 'access_token' in event['state']['user']:
-        yandex_music_api = YandexMusicApi(event['state']['user']['access_token'])
-        th = Thread(target=yandex_music_api.sort_playlist)
-        th.start()
-        return {
-            "text": "Сортировка была успешно запущена. Загляните в свои плейлисты через некоторое время, чтобы увидеть результат",
-            "tts": "Сортировка была успешно запущена. Загляните в свои плейлисты через некоторое время, чтобы увидеть результат",
-            "buttons": [
-                "Главное меню",
-            ],
-            "session_state": {
-                "branch": "main_menu"
+    try:
+        if 'access_token' in event['state']['user']:
+            yandex_music_api = YandexMusicApi(event['state']['user']['access_token'])
+            th = Thread(target=yandex_music_api.sort_playlist)
+            th.start()
+            return {
+                "text": "Сортировка была успешно запущена. Загляните в свои плейлисты через некоторое время, чтобы увидеть результат",
+                "tts": "Сортировка была успешно запущена. Загляните в свои плейлисты через некоторое время, чтобы увидеть результат",
+                "buttons": [
+                    "Главное меню",
+                ],
+                "session_state": {
+                    "branch": "main_menu"
+                }
             }
-        }
-    else:
+        else:
+            return {
+                "text": "Вы не авторизированы, для того, чтобы отсортировать плейлист перейдите в главное меню и авторизируйтесь",
+                "tts": "Вы не авторизированы, для того, чтобы отсортировать плейлист перейдите в главное меню и авторизируйтесь",
+                "buttons": [
+                    "Главное меню",
+                ],
+                "session_state": {
+                    "branch": "main_menu",
+                }
+            }
+
+    except:
         return {
             "text": "Вы не авторизированы, для того, чтобы отсортировать плейлист перейдите в главное меню и авторизируйтесь",
             "tts": "Вы не авторизированы, для того, чтобы отсортировать плейлист перейдите в главное меню и авторизируйтесь",
@@ -545,97 +569,109 @@ def what_you_can_def(event):
 
 
 def get_youtube_def(event):
-
-    if "link_youtube" not in event['state']['session']:
-        if 'access_token' in event['state']['user']:
-            return {
-                "text": "Напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
-                "tts": "Напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
-                "buttons": [
-                    "Главное меню",
-                    "Назад"
-                ],
-                "session_state": {
-                    "branch": "get_youtube",
-                    "link_youtube": "",
-                    "get_youtube": ""
+    try:
+        if "link_youtube" not in event['state']['session']:
+            if 'access_token' in event['state']['user']:
+                return {
+                    "text": "Напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
+                    "tts": "Напишите мне ссылку на видео с YouTube, из которого вы хотите скачать аудио",
+                    "buttons": [
+                        "Главное меню",
+                        "Назад"
+                    ],
+                    "session_state": {
+                        "branch": "get_youtube",
+                        "link_youtube": "",
+                        "get_youtube": ""
+                    }
                 }
-            }
 
+            else:
+                return {
+                    "text": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
+                    "tts": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
+                    "buttons": [
+                        "Главное меню",
+                    ],
+                    "session_state": {
+                        "branch": "main_menu",
+                    }
+                }
         else:
-            return {
-                "text": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
-                "tts": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
-                "buttons": [
-                    "Главное меню",
-                ],
-                "session_state": {
-                    "branch": "main_menu",
-                }
-            }
-    else:
-        if 'post_target' not in event['state']['session']:
-            link = event["request"]["original_utterance"]
-            name = get_name(link).replace(' ', '+')
+            if 'post_target' not in event['state']['session']:
+                link = event["request"]["original_utterance"]
+                name = get_name(link).replace(' ', '+')
 
-            kind = 3
-            url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?filename={name}&kind={kind}'
-            return {
-                "text": f"""
-            Чтобы я смогла перенести музыку, выполните следующее:
-            Перейдите по ссылке: {url}
-            Затем скопируйте содержимое на открывшейся странице и отправьте мне
-            (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
-                "tts": """
-            Для загрузки видео с YouTube воспользуйтесь устройством с экраном
-            Чтобы я смогла перенести музыку, выполните следующее:
-            Перейдите по ссылке:
-            Затем скопируйте содержимое на открывшейся странице и отправьте мне
-            (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
-                "buttons": [
-                    {
-                        'title': 'Ссылка для переноса',
-                        'url': url,
-                        'hide': False
+                kind = 3
+                url = f'https://music.yandex.ru/handlers/ugc-upload.jsx?filename={name}&kind={kind}'
+                return {
+                    "text": f"""
+                Чтобы я смогла перенести музыку, выполните следующее:
+                Перейдите по ссылке: {url}
+                Затем скопируйте содержимое на открывшейся странице и отправьте мне
+                (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
+                    "tts": """
+                Для загрузки видео с YouTube воспользуйтесь устройством с экраном
+                Чтобы я смогла перенести музыку, выполните следующее:
+                Перейдите по ссылке:
+                Затем скопируйте содержимое на открывшейся странице и отправьте мне
+                (для быстрого выделения нажмите Ctrl + A, для копирования воспользуйтесь нажатием клавиш Ctrl """,
+                    "buttons": [
+                        {
+                            'title': 'Ссылка для переноса',
+                            'url': url,
+                            'hide': False
+                        },
+                        "Главное меню",
+                        "Назад"
+                    ],
+                    "session_state": {
+                        "branch": "get_youtube",
+                        "get_youtube": "",
+                        "link_youtube": link,
+                        'post_target': ""
                     },
-                    "Главное меню",
-                    "Назад"
-                ],
-                "session_state": {
-                    "branch": "get_youtube",
-                    "get_youtube": "",
-                    "link_youtube": link,
-                    'post_target': ""
-                },
 
-            }
-        else:
-            url = event['state']['session']['link_youtube']
-            response = event["request"]["original_utterance"]
-            response = str(response).replace("'", '"')
-            first = response.find('https', response.find('post-target'))
-            out = response[first: response.find('"', first)]
-            post_target = out
-
-            def download():
-                res = get_info(url)
-                print(send_to_yandex(res, post_target))
-                print("AAAAAAAAAAAAAAAAAAAAA?")
-
-            th = Thread(target=download)
-            th.start()
-
-            return {
-                "text": """Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в плейлисте с вашей любимой музыкой.""",
-                "tts": "Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в плейлисте с вашей любимой музыкой.",
-                "buttons": [
-                    "Главное меню",
-                    "Назад"
-                ],
-                "session_state": {
-                    "branch": "main_menu",
                 }
+            else:
+                url = event['state']['session']['link_youtube']
+                response = event["request"]["original_utterance"]
+                response = str(response).replace("'", '"')
+                first = response.find('https', response.find('post-target'))
+                out = response[first: response.find('"', first)]
+                post_target = out
+
+                def download():
+                    res = get_info(url)
+                    print(send_to_yandex(res, post_target))
+                    print("AAAAAAAAAAAAAAAAAAAAA?")
+
+                th = Thread(target=download)
+                th.start()
+
+                return {
+                    "text": """Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в плейлисте с вашей любимой музыкой.""",
+                    "tts": "Музыка успешно перенесена! Скоро она появится в вашей Яндекс Музыке в плейлисте с вашей любимой музыкой.",
+                    "buttons": [
+                        "Главное меню",
+                        "Назад"
+                    ],
+                    "session_state": {
+                        "branch": "main_menu",
+                    }
+                }
+
+    except:
+        return {
+            "text": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
+            "tts": "Вы не авторизированы, для того, чтобы загрузить видео с YouTube перейдите в главное меню и авторизируйтесь",
+            "buttons": [
+                "Главное меню",
+            ],
+            "session_state": {
+                "branch": "main_menu",
             }
+        }
 
 
 find_music = Dialog([], find_music_def, {"найди", "подбери", "похожие", "треки", "произведения", "композиции", "музыку"})
@@ -706,4 +742,4 @@ def hello():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=2096)
